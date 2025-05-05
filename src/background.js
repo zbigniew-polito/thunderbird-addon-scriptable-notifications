@@ -18,6 +18,8 @@ window.scrNoti.getScriptType = async () => {
 //==========================================
 window.scrNoti.newEmailListener = async (folder, messages) => {
 
+  console.log(folder + "  " + messages.length)
+
   if (!(await window.scrNoti.isFolderToCheck(folder))) {
     return;
   }
@@ -27,13 +29,17 @@ window.scrNoti.newEmailListener = async (folder, messages) => {
 
     const scriptType = await window.scrNoti.getScriptType();
     for (const message of messages.messages) {
-      if (message && !message.junk) {
+
+      //if (message && !message.junk) {
+      if (message) {
         if (scriptType == "simple") {
           await window.scrNoti.notifyNativeScript(message, "new");
           return;
         }
+
         if (!seenMessages[folder.accountId + folder.path].has(message.id)) {
           await window.scrNoti.notifyNativeScript(message, "new");
+          console.log("notified")
           seenMessages[folder.accountId + folder.path].add(message.id);
         }
       }
@@ -84,7 +90,7 @@ window.scrNoti.onNotifyListener = async (message) => {
     if (scriptType == "simple") {
       return;
     }
-    
+
     if (nativeConnection != null) {
       nativeConnection.disconnect();
       nativeConnection = null;
